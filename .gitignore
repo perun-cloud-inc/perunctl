@@ -1,0 +1,9 @@
+.vscode
+.hammer
+.idea
+ignore/kube
+ignore
+output
+.hammer_linux
+
+.fake

@@ -1,0 +1,274 @@
+name: demows
+mode: local
+environments:
+    - name: boutique
+      description: ""
+      workspace: demows
+      target:
+        name: boutique
+        type: local
+        params:
+            cluster: demo-cluster-1
+            namespace: boutique
+      services:
+        adservice:
+            name: adservice
+            type: docker
+            params:
+                image: gcr.io/google-samples/microservices-demo/adservice:v0.6.0
+            run:
+                cmd: ""
+                args: []
+                envars:
+                    - key: PORT
+                      value: "9555"
+                ports:
+                    - port: "9555"
+                      hostport: ""
+                      exposed: true
+                mounts: {}
+            status: Active
+        cartservice:
+            name: cartservice
+            type: docker
+            params:
+                image: gcr.io/google-samples/microservices-demo/cartservice:v0.6.0
+            run:
+                cmd: ""
+                args: []
+                envars:
+                    - key: REDIS_ADDR
+                      value: redis-cart:6379
+                ports:
+                    - port: "7070"
+                      hostport: ""
+                      exposed: true
+                mounts: {}
+            status: Active
+        checkoutservice:
+            name: checkoutservice
+            type: docker
+            params:
+                image: gcr.io/google-samples/microservices-demo/checkoutservice:v0.6.0
+            run:
+                cmd: ""
+                args: []
+                envars:
+                    - key: PORT
+                      value: "5050"
+                    - key: PRODUCT_CATALOG_SERVICE_ADDR
+                      value: productcatalogservice:3550
+                    - key: SHIPPING_SERVICE_ADDR
+                      value: shippingservice:50051
+                    - key: PAYMENT_SERVICE_ADDR
+                      value: paymentservice:50051
+                    - key: EMAIL_SERVICE_ADDR
+                      value: emailservice:5000
+                    - key: CURRENCY_SERVICE_ADDR
+                      value: currencyservice:7000
+                    - key: CART_SERVICE_ADDR
+                      value: cartservice:7070
+                ports:
+                    - port: "5050"
+                      hostport: ""
+                      exposed: true
+                mounts: {}
+            status: Active
+        currencyservice:
+            name: currencyservice
+            type: docker
+            params:
+                image: gcr.io/google-samples/microservices-demo/currencyservice:v0.6.0
+            run:
+                cmd: ""
+                args: []
+                envars:
+                    - key: PORT
+                      value: "7000"
+                    - key: DISABLE_PROFILER
+                      value: "1"
+                ports:
+                    - port: "7000"
+                      hostport: ""
+                      exposed: true
+                mounts: {}
+            status: Active
+        emailservice:
+            name: emailservice
+            type: docker
+            params:
+                image: gcr.io/google-samples/microservices-demo/emailservice:v0.6.0
+            run:
+                cmd: ""
+                args: []
+                envars:
+                    - key: PORT
+                      value: "5000"
+                    - key: DISABLE_PROFILER
+                      value: "1"
+                ports:
+                    - port: "8080"
+                      hostport: ""
+                      exposed: true
+                mounts: {}
+            status: Active
+        frontend:
+            name: frontend
+            type: docker
+            params:
+                image: gcr.io/google-samples/microservices-demo/frontend:v0.6.0
+            run:
+                cmd: ""
+                args: []
+                envars:
+                    - key: PORT
+                      value: "8080"
+                    - key: PRODUCT_CATALOG_SERVICE_ADDR
+                      value: productcatalogservice:3550
+                    - key: CURRENCY_SERVICE_ADDR
+                      value: currencyservice:7000
+                    - key: CART_SERVICE_ADDR
+                      value: cartservice:7070
+                    - key: RECOMMENDATION_SERVICE_ADDR
+                      value: recommendationservice:8080
+                    - key: SHIPPING_SERVICE_ADDR
+                      value: shippingservice:50051
+                    - key: CHECKOUT_SERVICE_ADDR
+                      value: checkoutservice:5050
+                    - key: AD_SERVICE_ADDR
+                      value: adservice:9555
+                    - key: ENABLE_PROFILER
+                      value: "0"
+                ports:
+                    - port: "8080"
+                      hostport: ""
+                      exposed: true
+                mounts: {}
+            status: Active
+        frontend-external:
+            name: frontend-external
+            type: docker
+            params:
+                image: gcr.io/google-samples/microservices-demo/frontend:v0.6.0
+            run:
+                cmd: ""
+                args: []
+                envars:
+                    - key: PORT
+                      value: "8080"
+                    - key: PRODUCT_CATALOG_SERVICE_ADDR
+                      value: productcatalogservice:3550
+                    - key: CURRENCY_SERVICE_ADDR
+                      value: currencyservice:7000
+                    - key: CART_SERVICE_ADDR
+                      value: cartservice:7070
+                    - key: RECOMMENDATION_SERVICE_ADDR
+                      value: recommendationservice:8080
+                    - key: SHIPPING_SERVICE_ADDR
+                      value: shippingservice:50051
+                    - key: CHECKOUT_SERVICE_ADDR
+                      value: checkoutservice:5050
+                    - key: AD_SERVICE_ADDR
+                      value: adservice:9555
+                    - key: ENABLE_PROFILER
+                      value: "0"
+                ports:
+                    - port: "8080"
+                      hostport: ""
+                      exposed: true
+                mounts: {}
+            status: Active
+        paymentservice:
+            name: paymentservice
+            type: docker
+            params:
+                image: gcr.io/google-samples/microservices-demo/paymentservice:v0.6.0
+            run:
+                cmd: ""
+                args: []
+                envars:
+                    - key: PORT
+                      value: "50051"
+                    - key: DISABLE_PROFILER
+                      value: "1"
+                ports:
+                    - port: "50051"
+                      hostport: ""
+                      exposed: true
+                mounts: {}
+            status: Active
+        productcatalogservice:
+            name: productcatalogservice
+            type: docker
+            params:
+                image: gcr.io/google-samples/microservices-demo/productcatalogservice:v0.6.0
+            run:
+                cmd: ""
+                args: []
+                envars:
+                    - key: PORT
+                      value: "3550"
+                    - key: DISABLE_PROFILER
+                      value: "1"
+                ports:
+                    - port: "3550"
+                      hostport: ""
+                      exposed: true
+                mounts: {}
+            status: Active
+        recommendationservice:
+            name: recommendationservice
+            type: docker
+            params:
+                image: gcr.io/google-samples/microservices-demo/recommendationservice:v0.6.0
+            run:
+                cmd: ""
+                args: []
+                envars:
+                    - key: PORT
+                      value: "8080"
+                    - key: PRODUCT_CATALOG_SERVICE_ADDR
+                      value: productcatalogservice:3550
+                    - key: DISABLE_PROFILER
+                      value: "1"
+                ports:
+                    - port: "8080"
+                      hostport: ""
+                      exposed: true
+                mounts: {}
+            status: Active
+        redis-cart:
+            name: redis-cart
+            type: docker
+            params:
+                image: redis:alpine
+            run:
+                cmd: ""
+                args: []
+                envars: []
+                ports:
+                    - port: "6379"
+                      hostport: ""
+                      exposed: true
+                mounts: {}
+            status: Active
+        shippingservice:
+            name: shippingservice
+            type: docker
+            params:
+                image: gcr.io/google-samples/microservices-demo/shippingservice:v0.6.0
+            run:
+                cmd: ""
+                args: []
+                envars:
+                    - key: PORT
+                      value: "50051"
+                    - key: DISABLE_PROFILER
+                      value: "1"
+                ports:
+                    - port: "50051"
+                      hostport: ""
+                      exposed: true
+                mounts: {}
+            status: Active
+      status: Active
