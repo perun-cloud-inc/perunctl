@@ -1,7 +1,6 @@
 # perunctl
 
-This CLI tool main goal is to enable developers to debug their containerized app as if they are debugging it locally inside their favorite IDE (currently only vscode is supported).
-the containerized app will run in a local docker container while communicating to the external container services running locally as well.
+The main goal of this CLI tool is to enable developers to debug their containerized app as if they were debugging it locally inside their favorite IDE (currently, only vscode is supported). The containerized app will run in a local Docker container while communicating with the external container services also running locally.
 
 ## Some definitions first ##
 
@@ -16,11 +15,9 @@ we support multiple types of services :
 **Perun workspace** - a logical grouping of environments
 
 ## Environment definition ##
-The first step of using perun cli is to define the application in a yaml file, the file will contain the various services of the application and their dependencies.
-To make things easier for k8s cluster users, we allow environment import which will connect to the specified k8s namespace and import the environment running there as a perun environment yaml.
+The first step in using the Perun CLI is to define the application in a YAML file. This file will contain the various services of the application and their dependencies. To simplify the process for Kubernetes cluster users, we offer environment import functionality. This feature allows users to connect to a specified Kubernetes namespace and import the running environment as a Perun environment YAML.
 
-each service in the environment yaml can define its dependencies influencing the order of the services load when working in local mode.
-In addition, each service can define its environment variables which will be injected into the running local process when loaded.
+Each service in the environment YAML can define its dependencies, which will influence the order of service loading when working in local mode. Additionally, each service can specify its environment variables, which will be injected into the local running process upon loading.
 
 ## Pre-requisites
 
@@ -86,7 +83,7 @@ to debug the payment service which is a nodejs source code, you can run the foll
 perunctl generate -w <workspace-name> -e <env-name> -s paymentservice --source-location <local folder where the service source code resides> --source-type node --command "node index.js"
 ```
 
-the aboce commands will generate vscode launch configuration and persist it in the respective vscode folder of the relevant project specified by the source-location arg.
+the above commands will generate vscode launch configuration and persist it in the respective vscode folder of the relevant project specified by the source-location arg.
 
 
 4. open vscode to the service workspace. you will be able now to run the debug target in the generated launch configuration and start your debugging session. this will effectively stop the original service docker container and load your debug container while routing all traffic to it.
