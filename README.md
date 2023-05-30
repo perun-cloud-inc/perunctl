@@ -49,8 +49,8 @@ Use "perunctl [command] --help" for more information about a command.
 ```
 
 ## Basic steps for debugging a service
-1. Creating the perun environment yaml according to a specific schema (see examples)
-2. Applying the desired perun environment locally... this will locally load all the docker containers in that environment.
+1. Create the Perun environment YAML file based on a specific schema (refer to the [examples](https://github.com/perun-cloud-inc/perunctl/tree/main/examples))
+2. Apply the desired Perun environment locally, which will load all the Docker containers in that environment on your local machine.
 ```
 perunctl init -w <workspace-name>
 perunctl apply -w <workspace-name> -e <env-name> -p <path-to-the-env-yml>
@@ -58,11 +58,12 @@ perunctl apply -w <workspace-name> -e <env-name> -p <path-to-the-env-yml>
 
 OR 
 
-1. import a k8s namespace to a local perun environment representation (check the command for more supported flags)
+1. Import a Kubernetes namespace into a local Perun environment representation. Please check the command for additional supported flags
 ```
 perunctl import -t k8s -w <target-workspace-name> -n <namespace-to-import> -c <k8s-cluster-name>
 ```
-For example if you have a k8s cluster where "https://github.com/GoogleCloudPlatform/microservices-demo" is deployed, running the import command on the namespace where it is deployed will generate a workspace yaml under ~/.perun/workspaces/<workspace-name>/ see example folder for a reference. 
+For example, if you have a Kubernetes cluster where [microservices-demo](https://github.com/GoogleCloudPlatform/microservices-demo) is deployed, running the import command on the namespace where it is deployed will generate a workspace YAML under ~/.perun/workspaces/<workspace-name>/ directory. You can refer to the example folder for a reference." 
+
 2. Activate the imported environment... this will locally load all the docker containers in that environment. 
 ```
 perunctl activate -w <workspace-name> -e <env-name>
@@ -72,9 +73,10 @@ perunctl activate -w <workspace-name> -e <env-name>
 ```
 perunctl generate -w <workspace-name> -e <env-name> -s <service-name-to-debug> --source-location <local folder where the service source code resides> --source-type <node or python> --command <the command  to run for loading the application>
 ```
-:warning: **Please note that any existing vscode configuration will be overwritten**
-in the referenced project example "https://github.com/GoogleCloudPlatform/microservices-demo",
-to debug the email service which is a python source code, you can run the following generate command.
+> :warning: **Please note that any existing vscode configuration will be overwritten**
+
+In the referenced project example [microservices-demo](https://github.com/GoogleCloudPlatform/microservices-demo), to debug the email service, which is written in Python, you can execute the following generate command.
+
 ```
 perunctl generate -w <workspace-name> -e <env-name> -s emailservice --source-location <local folder where the service source code resides> --source-type python --command "python email_server.py"
 ```
@@ -89,7 +91,7 @@ the above commands will generate vscode launch configuration and persist it in t
 4. open vscode to the service workspace. you will be able now to run the debug target in the generated launch configuration and start your debugging session. this will effectively stop the original service docker container and load your debug container while routing all traffic to it.
 5. once debug session is over all the above re-routing will be reverted and the original container will be back in a running state.
 
-**see more environment examples under the *examples* folder**
+**see more environment examples under the [examples](https://github.com/perun-cloud-inc/perunctl/tree/main/examples) folder**
 
 
 
