@@ -18,7 +18,7 @@ type DatabaseCopy interface {
 	ImportDump() error
 }
 
-// MySQLCopy
+// MySQLCopy ...
 type MySQLCopy struct {
 	URL         string
 	TargetFile  string
@@ -71,7 +71,12 @@ func (d MySQLCopy) dump(connectionString string) (string, error) {
 		log.Fatal(err)
 		return "", err
 	}
-	defer db.Close()
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			return
+		}
+	}(db)
 
 	err = db.Ping()
 	if err != nil {
@@ -84,13 +89,23 @@ func (d MySQLCopy) dump(connectionString string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			return
+		}
+	}(file)
 
 	rows, err := db.Query("SHOW TABLES")
 	if err != nil {
 		return "", err
 	}
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			return
+		}
+	}(rows)
 
 	tables := make([]string, 0)
 	for rows.Next() {
@@ -109,7 +124,12 @@ func (d MySQLCopy) dump(connectionString string) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		defer fkRows.Close()
+		defer func(fkRows *sql.Rows) {
+			err := fkRows.Close()
+			if err != nil {
+				return
+			}
+		}(fkRows)
 
 		for fkRows.Next() {
 			var refTable string
@@ -133,7 +153,12 @@ func (d MySQLCopy) dump(connectionString string) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		defer createTableStmt.Close()
+		defer func(createTableStmt *sql.Rows) {
+			err := createTableStmt.Close()
+			if err != nil {
+				return
+			}
+		}(createTableStmt)
 
 		createTableStmt.Next()
 		var table, createStmt string
@@ -148,7 +173,12 @@ func (d MySQLCopy) dump(connectionString string) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		defer dataRows.Close()
+		defer func(dataRows *sql.Rows) {
+			err := dataRows.Close()
+			if err != nil {
+				return
+			}
+		}(dataRows)
 
 		columns, err := dataRows.Columns()
 		if err != nil {
@@ -175,7 +205,7 @@ func (d MySQLCopy) dump(connectionString string) (string, error) {
 				}
 
 				if value == nil {
-					dump.WriteString(fmt.Sprintf("%s", "NULL"))
+					dump.WriteString("NULL")
 
 				} else {
 					dump.WriteString(fmt.Sprintf("%q", value))
@@ -250,7 +280,12 @@ func (d MySQLCopy) importDumpFile(targetConnectionString, dumpFile string) error
 		log.Fatal(err)
 		return err
 	}
-	defer db.Close()
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			return
+		}
+	}(db)
 
 	err = db.Ping()
 	if err != nil {
@@ -280,7 +315,7 @@ func (d MySQLCopy) importDumpFile(targetConnectionString, dumpFile string) error
 	return nil
 }
 
-// PostgresCopy
+// PostgresCopy ...
 type PostgresCopy struct {
 	URL         string
 	TargetFile  string
@@ -336,7 +371,12 @@ func (d PostgresCopy) dump(connectionString string) (string, error) {
 		log.Fatal(err)
 		return "", err
 	}
-	defer db.Close()
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			return
+		}
+	}(db)
 
 	err = db.Ping()
 	if err != nil {
@@ -349,13 +389,23 @@ func (d PostgresCopy) dump(connectionString string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			return
+		}
+	}(file)
 
 	rows, err := db.Query(`SELECT tablename FROM pg_tables WHERE schemaname='public'`)
 	if err != nil {
 		return "", err
 	}
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			return
+		}
+	}(rows)
 
 	for rows.Next() {
 		var tableName string
@@ -368,7 +418,12 @@ func (d PostgresCopy) dump(connectionString string) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		defer createTableStmt.Close()
+		defer func(createTableStmt *sql.Rows) {
+			err := createTableStmt.Close()
+			if err != nil {
+				return
+			}
+		}(createTableStmt)
 
 		createTableStmt.Next()
 		var createStmt string
@@ -383,7 +438,12 @@ func (d PostgresCopy) dump(connectionString string) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		defer dataRows.Close()
+		defer func(dataRows *sql.Rows) {
+			err := dataRows.Close()
+			if err != nil {
+				return
+			}
+		}(dataRows)
 
 		columns, err := dataRows.Columns()
 		if err != nil {
@@ -444,7 +504,12 @@ func (d PostgresCopy) importDumpFile(targetConnectionString, dump string) error 
 		log.Fatal(err)
 		return err
 	}
-	defer db.Close()
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			return
+		}
+	}(db)
 
 	err = db.Ping()
 	if err != nil {

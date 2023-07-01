@@ -3,12 +3,10 @@ package model
 type WorkspaceMode int64
 
 const (
-	Undefined WorkspaceMode = iota
-	Local
+	ActiveStatus                 = "Active"
+	InactiveStatus               = "Inactive"
+	Local          WorkspaceMode = iota
 )
-
-const ACTIVE_STATUS = "Active"
-const INACTIVE_STATUS = "Inactive"
 
 func (s WorkspaceMode) String() string {
 	switch s {

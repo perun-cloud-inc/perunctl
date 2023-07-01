@@ -6,8 +6,8 @@ import (
 	"os"
 	"strings"
 
-	"main.go/model"
-	"main.go/utils"
+	"github.com/perun-cloud-inc/perunctl/model"
+	"github.com/perun-cloud-inc/perunctl/utils"
 )
 
 type ConfigGenerator interface {
@@ -93,9 +93,7 @@ type VSCodeConfigGenerator struct {
 
 func (*VSCodeConfigGenerator) GetLaunchConfig(environment *model.Environment, service *model.Service) (*VSCodeLaunchConfig, error) {
 
-	var launchConfig *VSCodeLaunchConfig
-
-	launchConfig = &VSCodeLaunchConfig{
+	var launchConfig = &VSCodeLaunchConfig{
 
 		Version: "0.2.0",
 		Configurations: []VSCodeConfiguration{
@@ -144,7 +142,7 @@ func (*VSCodeConfigGenerator) GetTaskConfig(environment *model.Environment, serv
 		Label: "docker-build",
 		// Platform: "python", //TODO retrieve type from code analysis
 		DockerBuild: &VSCodeDockerBuild{
-			Tag:           environment.Workspace + environment.Name + service.Name + ":latest",
+			Tag:           fmt.Sprintf("%s%s%s:latest", environment.Workspace, environment.Name, service.Name),
 			DockerFile:    "${workspaceFolder}/Dockerfile", //TODO retrieve from user config and default to this value
 			Context:       "${workspaceFolder}",
 			Pull:          true,
@@ -158,7 +156,7 @@ func (*VSCodeConfigGenerator) GetTaskConfig(environment *model.Environment, serv
 		DependsOn: []string{"docker-build"},
 		DockerRun: &VSCodeDockerRun{
 			Env:   getEnvVarsMap(service.Run.EnVars),
-			Image: environment.Workspace + environment.Name + service.Name + ":latest",
+			Image: fmt.Sprintf("%s%s:latest", environment.Workspace+environment.Name, service.Name),
 			Labels: map[string]string{
 				"perun-workspace":  environment.Workspace,
 				"perun-env":        environment.Name,
@@ -212,7 +210,7 @@ func (*VSCodeConfigGenerator) GetTaskConfig(environment *model.Environment, serv
 		}
 
 		if service.Run.Cmd == "node" {
-			dockerRun.DockerRun.Command = service.Run.Cmd + " --inspect=0.0.0.0:9229 " + strings.Join(service.Run.Args, " ")
+			dockerRun.DockerRun.Command = fmt.Sprintf("%s --inspect=0.0.0.0:9229 %s", service.Run.Cmd, strings.Join(service.Run.Args, " "))
 
 			// 	debugPortmapping := VSCodeConfigPortMapping{
 			// 		ContainerPort: "9229",
@@ -228,7 +226,7 @@ func (*VSCodeConfigGenerator) GetTaskConfig(environment *model.Environment, serv
 				dockerRun.DockerRun.Command += " " + arg
 			}
 		} else {
-			dockerRun.DockerRun.Command = "node  --inspect=0.0.0.0:9229 " + service.Run.Cmd + strings.Join(service.Run.Args, " ")
+			dockerRun.DockerRun.Command = fmt.Sprintf("node  --inspect=0.0.0.0:9229 %s%s", service.Run.Cmd, strings.Join(service.Run.Args, " "))
 		}
 
 		dockerRun.DockerRun.CustomOptions = "--entrypoint=\"\" "
@@ -253,7 +251,7 @@ func (g *VSCodeConfigGenerator) Generate(environment *model.Environment, service
 		return "", err
 	}
 
-	configPath := dirname + utils.WORKSPACES_HOME + environment.Workspace + "/" + environment.Name + "/" + service.Name + "/vscode"
+	configPath := fmt.Sprintf("%s%s%s/%s/%s/vscode", dirname, utils.WorkspacesHome, environment.Workspace, environment.Name, service.Name)
 	utils.Logger.Info("Generating VSCode Launch Config for service %s", service.Name)
 	if err := os.MkdirAll(configPath, os.ModePerm); err != nil {
 		return "", err

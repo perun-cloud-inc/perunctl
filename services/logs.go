@@ -10,14 +10,14 @@ import (
 	"github.com/docker/docker/client"
 )
 
-func GetLogs(container_id string, tail bool) error {
+func GetLogs(container_id string) error {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return err
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	reader, err := cli.ContainerLogs(ctx, "container_id", types.ContainerLogsOptions{})
+	reader, err := cli.ContainerLogs(ctx, container_id, types.ContainerLogsOptions{})
 	if err != nil {
 		return err
 	}

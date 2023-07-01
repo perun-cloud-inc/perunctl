@@ -3,7 +3,7 @@ package services
 import (
 	"testing"
 
-	"main.go/model"
+	"github.com/perun-cloud-inc/perunctl/model"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"

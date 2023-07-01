@@ -6,7 +6,7 @@ import (
 
 	"net/url"
 
-	"main.go/model"
+	"github.com/perun-cloud-inc/perunctl/model"
 )
 
 func GetWorkspaceService() LocalWorkspacesService {
@@ -61,7 +61,7 @@ func GetDBService(dbURL string, dbType string, dbVersion string) (*model.Service
 			HostPort: "5432",
 			Exposed:  true,
 		}}
-		targetURL = dbUser + ":" + dbPass + "@localhost:5432" + "/" + dbName
+		targetURL = fmt.Sprintf("%s:%s@localhost:5432/%s", dbUser, dbPass, dbName)
 
 	} else if dbType == "mysql" {
 		dbEnVars = append(dbEnVars,
@@ -81,7 +81,7 @@ func GetDBService(dbURL string, dbType string, dbVersion string) (*model.Service
 
 		}
 
-		targetURL = dbUser + ":" + dbPass + "@localhost:3306" + "/" + dbName
+		targetURL = fmt.Sprintf("%s:%s@localhost:3306/%s", dbUser, dbPass, dbName)
 		ports = []model.Port{{
 
 			Port:     "3306",

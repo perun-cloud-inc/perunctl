@@ -21,8 +21,8 @@ import (
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 
 	ps "github.com/mitchellh/go-ps"
-	"main.go/model"
-	"main.go/utils"
+	"github.com/perun-cloud-inc/perunctl/model"
+	"github.com/perun-cloud-inc/perunctl/utils"
 )
 
 type SynchronizationService interface {
@@ -48,7 +48,7 @@ func (s DockerSynchronizationService) Synchronize(env *model.Environment) error 
 		return err
 	}
 
-	networks, err := cli.NetworkList(ctx, types.NetworkListOptions{
+	networks, _ := cli.NetworkList(ctx, types.NetworkListOptions{
 		Filters: filters.NewArgs(filters.KeyValuePair{Key: "name", Value: env.Workspace}),
 	})
 
@@ -74,7 +74,10 @@ func (s DockerSynchronizationService) Synchronize(env *model.Environment) error 
 	// load db container first
 	dbService := env.Services["perun-db"]
 	if dbService != nil {
-		loadService(ctx, cli, targetNetworkID, env, dbService)
+		e := loadService(ctx, cli, targetNetworkID, env, dbService)
+		if e != nil {
+			return e
+		}
 		time.Sleep(15 * time.Second)
 		if dbService.Build.Type == "db" {
 			dbType := dbService.Build.Params["type"]
@@ -125,13 +128,16 @@ func (s DockerSynchronizationService) Synchronize(env *model.Environment) error 
 			continue
 		}
 
-		loadService(ctx, cli, targetNetworkID, env, service)
+		e := loadService(ctx, cli, targetNetworkID, env, service)
+		if e != nil {
+			return e
+		}
 		utils.Logger.Increment(increment, "")
 
 	}
 
 	// go ContainerEvents(cli)
-	env.Status = model.ACTIVE_STATUS
+	env.Status = model.ActiveStatus
 	return nil
 
 }
@@ -142,10 +148,9 @@ func loadService(ctx context.Context, cli *client.Client, targetNetworkID string
 	containerID := ""
 	imageName := ""
 
-	if service.Build != nil && service.Build.Type == "dockerfile" {
-		//TODO build custom container first
-		//docker file support?
-	}
+	//TODO build custom container first, docker file support?
+	//if service.Build != nil && service.Build.Type == "dockerfile" {
+	//}
 
 	volumeLocalPath := ""
 	switch service.Type {
@@ -215,7 +220,10 @@ func loadService(ctx context.Context, cli *client.Client, targetNetworkID string
 		return err
 	}
 
-	io.Copy(utils.Logger.GetOutput(), reader)
+	_, err = io.Copy(utils.Logger.GetOutput(), reader)
+	if err != nil {
+		return err
+	}
 
 	config := &container.Config{
 
@@ -343,15 +351,18 @@ func loadService(ctx context.Context, cli *client.Client, targetNetworkID string
 	}
 	containerID = resp.ID
 
-	cli.NetworkConnect(ctx, targetNetworkID, containerID, &network.EndpointSettings{
+	err = cli.NetworkConnect(ctx, targetNetworkID, containerID, &network.EndpointSettings{
 		Aliases: []string{service.Name},
 	})
+	if err != nil {
+		return err
+	}
 
 	if err := cli.ContainerStart(ctx, containerID, types.ContainerStartOptions{}); err != nil {
 		return err
 	}
 
-	service.Status = model.ACTIVE_STATUS
+	service.Status = model.ActiveStatus
 
 	return nil
 
@@ -364,7 +375,10 @@ func (s DockerSynchronizationService) Listen() error {
 		return err
 	}
 
-	ContainerEvents(cli)
+	err = ContainerEvents(cli)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -376,7 +390,7 @@ func getDumpLocation(env *model.Environment, service *model.Service) (string, er
 		err = fmt.Errorf("failed to create temp properties folder, failed to fetch home directory : %v", err)
 		return "", err
 	}
-	workspacesDirectory := dirname + utils.WORKSPACES_HOME + env.Workspace
+	workspacesDirectory := dirname + utils.WorkspacesHome + env.Workspace
 
 	dumpsFileLocation := workspacesDirectory + "/" + service.Name + "/dump/"
 	err = os.MkdirAll(dumpsFileLocation, os.ModePerm)
@@ -401,7 +415,7 @@ func getPropertiesFilesLocation(env *model.Environment, service *model.Service, 
 			err = fmt.Errorf("failed to create temp properties folder, failed to fetch home directory : %v", err)
 			return "", err
 		}
-		workspacesDirectory := dirname + utils.WORKSPACES_HOME + env.Workspace
+		workspacesDirectory := dirname + utils.WorkspacesHome + env.Workspace
 
 		configsFileLocation = workspacesDirectory + "/" + service.Name + "/properties/" + mount.Name + "/"
 		err = os.MkdirAll(configsFileLocation, os.ModePerm)
@@ -412,7 +426,7 @@ func getPropertiesFilesLocation(env *model.Environment, service *model.Service, 
 		}
 
 	} else {
-		if strings.HasSuffix(configsFileLocation, "/") == false {
+		if !strings.HasSuffix(configsFileLocation, "/") {
 			configsFileLocation += "/"
 		}
 	}
@@ -421,7 +435,7 @@ func getPropertiesFilesLocation(env *model.Environment, service *model.Service, 
 	for _, config := range mount.Configs {
 
 		configLocation := configsFileLocation + config.ConfigName
-		configs = append(configs, configLocation)
+		_ = append(configs, configLocation)
 		data := []byte(config.Content)
 		err = os.WriteFile(configLocation, data, os.ModePerm)
 		if err != nil {
@@ -503,7 +517,7 @@ func ContainerEvents(client *client.Client) error {
 
 				if msg.Actor.Attributes["perun-env-target"] == "docker" || msg.Actor.Attributes["perun-env-target"] == "local" {
 					// start stopped container
-					originalContainerName := msg.Actor.Attributes["perun-env"] + "-" + msg.Actor.Attributes["perun-service"]
+					originalContainerName := fmt.Sprintf("%s-%s", msg.Actor.Attributes["perun-env"], msg.Actor.Attributes["perun-service"])
 
 					inspect, err := client.ContainerInspect(context.TODO(), originalContainerName)
 					if err != nil {
@@ -575,7 +589,7 @@ func (s DockerSynchronizationService) Unsynchronize(env *model.Environment) erro
 		return fmt.Errorf("Failed to deactivate environment %s/%s", env.Workspace, env.Name)
 	}
 
-	env.Status = model.INACTIVE_STATUS
+	env.Status = model.InactiveStatus
 	return nil
 }
 
@@ -648,13 +662,13 @@ func (s DockerSynchronizationService) Destroy(env *model.Environment) error {
 
 		utils.Logger.Info("removing container %s with ID %s", env.Name+"-"+service.Name, containerID)
 
-		service.Status = model.INACTIVE_STATUS
+		service.Status = model.InactiveStatus
 
 		utils.Logger.Increment(increment, "")
 
 	}
 
-	networks, err := cli.NetworkList(ctx, types.NetworkListOptions{
+	networks, _ := cli.NetworkList(ctx, types.NetworkListOptions{
 		Filters: filters.NewArgs(filters.Arg("name", env.Workspace)),
 	})
 
@@ -667,7 +681,10 @@ func (s DockerSynchronizationService) Destroy(env *model.Environment) error {
 
 	targetNetworkID := networks[0].ID
 
-	cli.NetworkRemove(ctx, targetNetworkID)
+	err = cli.NetworkRemove(ctx, targetNetworkID)
+	if err != nil {
+		return err
+	}
 	return nil
 
 }

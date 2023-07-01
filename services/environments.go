@@ -9,8 +9,8 @@ import (
 	"runtime"
 
 	ps "github.com/mitchellh/go-ps"
-	"main.go/model"
-	"main.go/utils"
+	"github.com/perun-cloud-inc/perunctl/model"
+	"github.com/perun-cloud-inc/perunctl/utils"
 )
 
 type EnvironmentService interface {
@@ -74,7 +74,7 @@ func CheckEventsListenerLocation() (string, error) {
 		return "", err
 	}
 	exPath := filepath.Dir(ex)
-	binPath := exPath + "/events"
+	binPath := fmt.Sprintf("%s/events", exPath)
 	if runtime.GOOS == "windows" {
 		binPath += ".exe"
 	}
@@ -118,7 +118,7 @@ func (es LocalEnvironmentService) ActivateEnvironment(env *model.Environment) er
 
 	}()
 
-	if env.Status == model.ACTIVE_STATUS && env.Target.Type == "docker" {
+	if env.Status == model.ActiveStatus && env.Target.Type == "docker" {
 		return fmt.Errorf("target environment %s is already in active state", env.Name)
 	}
 
@@ -147,7 +147,7 @@ func (es LocalEnvironmentService) ActivateEnvironment(env *model.Environment) er
 func (es LocalEnvironmentService) DeactivateEnvironment(env *model.Environment) error {
 
 	utils.Logger.Info("Deactivating environment %s", env.Name)
-	if env.Status != model.ACTIVE_STATUS {
+	if env.Status != model.ActiveStatus {
 		return fmt.Errorf("deactivation aborted, Target environment %s not in active state", env.Name)
 	}
 
@@ -163,8 +163,8 @@ func (es LocalEnvironmentService) DestroyEnvironment(env *model.Environment) err
 
 	utils.Logger.Info("Destroying environment %s", env.Name)
 
-	if env.Status != model.ACTIVE_STATUS {
-		if env.Status == model.INACTIVE_STATUS {
+	if env.Status != model.ActiveStatus {
+		if env.Status == model.InactiveStatus {
 			utils.Logger.Info("Environment %s is in inactive state... skipping environment deletion", env.Name)
 			return nil
 		}
