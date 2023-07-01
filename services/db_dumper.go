@@ -18,7 +18,7 @@ type DatabaseCopy interface {
 	ImportDump() error
 }
 
-// MySQLCopy
+// MySQLCopy ...
 type MySQLCopy struct {
 	URL         string
 	TargetFile  string
@@ -175,7 +175,7 @@ func (d MySQLCopy) dump(connectionString string) (string, error) {
 				}
 
 				if value == nil {
-					dump.WriteString(fmt.Sprintf("%s", "NULL"))
+					dump.WriteString("NULL")
 
 				} else {
 					dump.WriteString(fmt.Sprintf("%q", value))
@@ -280,7 +280,7 @@ func (d MySQLCopy) importDumpFile(targetConnectionString, dumpFile string) error
 	return nil
 }
 
-// PostgresCopy
+// PostgresCopy ...
 type PostgresCopy struct {
 	URL         string
 	TargetFile  string

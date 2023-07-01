@@ -7,8 +7,8 @@ import (
 	"os"
 	"strings"
 
-	"main.go/model"
-	"main.go/utils"
+	"github.com/perun-cloud-inc/perunctl/model"
+	"github.com/perun-cloud-inc/perunctl/utils"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -123,7 +123,10 @@ func (wss LocalWorkspacesService) DestroyWorkspace(name string) error {
 
 		utils.Logger.Info("destroying environment %s under workspace %s", env.Name, ws.Name)
 
-		utils.Logger.SetProgressAllocation(env.Name, increment)
+		err := utils.Logger.SetProgressAllocation(env.Name, increment)
+		if err != nil {
+			return err
+		}
 		err = wss.EnvironmentService.DestroyEnvironment(env)
 		if err != nil {
 			utils.Logger.Error("%v", err)
@@ -279,7 +282,7 @@ func (wss LocalWorkspacesService) ImportK8sEnvironment(targetWorkspace string, k
 	importedEnv = &model.Environment{
 		Name:      k8sNamespace,
 		Workspace: targetWorkspace,
-		Status:    model.INACTIVE_STATUS,
+		Status:    model.InactiveStatus,
 		Target: model.Target{
 			Name:   k8sNamespace,
 			Type:   "local",
@@ -299,7 +302,7 @@ func (wss LocalWorkspacesService) ImportK8sEnvironment(targetWorkspace string, k
 		service := &model.Service{
 			Name:   k8sService.Name,
 			Type:   "docker",
-			Status: model.INACTIVE_STATUS,
+			Status: model.InactiveStatus,
 			Params: make(map[string]string),
 		}
 		pods, err := getPodsForSvc(&k8sService, k8sNamespace, clientset)
@@ -531,7 +534,10 @@ func (wss LocalWorkspacesService) ImportLocalEnvironment(targetWorkspace string,
 	//TODO analyze loaded env and services
 	// analyzedEnv, err := wss.AnalyzerService.AnalyzeEnvironment(importedEnv)
 
-	ApplyStatus(importedEnv, model.INACTIVE_STATUS)
+	err = ApplyStatus(importedEnv, model.InactiveStatus)
+	if err != nil {
+		return nil, err
+	}
 	importedEnv.Workspace = ws.Name
 	utils.Logger.Increment(10, "")
 	for _, environment := range ws.Environments {
@@ -598,7 +604,10 @@ func (wss LocalWorkspacesService) ActivateEnvironment(targetWorkspace string, en
 
 	targetEnv.Workspace = ws.Name
 	utils.Logger.Increment(10, "")
-	utils.Logger.SetProgressAllocation(targetEnv.Name, 60)
+	err = utils.Logger.SetProgressAllocation(targetEnv.Name, 60)
+	if err != nil {
+		return err
+	}
 	err = wss.EnvironmentService.ActivateEnvironment(targetEnv)
 	if err != nil {
 		return err
@@ -635,7 +644,10 @@ func (wss LocalWorkspacesService) DeactivateEnvironment(targetWorkspace string, 
 		return fmt.Errorf("failed to find target environment %s under %s workspace", environment, targetWorkspace)
 	}
 	utils.Logger.Increment(10, "")
-	utils.Logger.SetProgressAllocation(targetEnv.Name, 60)
+	err = utils.Logger.SetProgressAllocation(targetEnv.Name, 60)
+	if err != nil {
+		return err
+	}
 	err = wss.EnvironmentService.DeactivateEnvironment(targetEnv)
 	if err != nil {
 		return err
@@ -668,7 +680,10 @@ func (wss LocalWorkspacesService) SynchronizeEnvironment(targetWorkspace string,
 		return fmt.Errorf("failed to find target environment %s under %s workspace", environment, targetWorkspace)
 	}
 
-	utils.Logger.SetProgressAllocation(targetEnv.Name, 80)
+	err = utils.Logger.SetProgressAllocation(targetEnv.Name, 80)
+	if err != nil {
+		return err
+	}
 	err = wss.EnvironmentService.SyncEnvironment(targetEnv)
 
 	if err != nil {
@@ -692,7 +707,10 @@ func (wss LocalWorkspacesService) DestroyEnvironment(targetWorkspace string, env
 		err = fmt.Errorf("failed destroying workspace %s, workspace not found", targetWorkspace)
 		return err
 	}
-	utils.Logger.SetProgressAllocation(environment, 70)
+	err = utils.Logger.SetProgressAllocation(environment, 70)
+	if err != nil {
+		return err
+	}
 	remainingEnvs := make([]*model.Environment, 0)
 	for _, env := range ws.Environments {
 

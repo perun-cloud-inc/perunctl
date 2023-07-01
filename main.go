@@ -1,7 +1,7 @@
 package main
 
 import (
-	"main.go/cmd"
+	"github.com/perun-cloud-inc/perunctl/cmd"
 )
 
 func main() {

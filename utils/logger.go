@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"io"
 	"os"
 
@@ -19,24 +20,24 @@ type ILogger struct {
 
 var Logger *ILogger
 
-func GetLogger(verbosity bool, description string, logname string) *ILogger {
+func GetLogger(verbosity bool, description string, logName string) *ILogger {
 
 	dirname, err := os.UserHomeDir()
 	if err != nil {
 		log.Error(err)
 	}
 
-	perunLocation := dirname + PERUN_HOME
+	perunLocation := fmt.Sprintf("%s%s", dirname, PerunHome)
 	if err := os.MkdirAll(perunLocation, os.ModePerm); err != nil {
 
 		log.Error(err)
 
 	}
 
-	if logname == "" {
-		logname = "log"
+	if logName == "" {
+		logName = "log"
 	}
-	logFile, err := os.OpenFile(perunLocation+logname, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	logFile, err := os.OpenFile(perunLocation+logName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -101,16 +102,28 @@ func (l *ILogger) Increment(increment int, description string) {
 		l.bar.Describe(description)
 	}
 	l.ProgressLeft -= increment
-	l.bar.Add(increment)
+	err := l.bar.Add(increment)
+	if err != nil {
+		// TODO: handle it
+		return
+	}
 }
 
 func (l *ILogger) Finish() {
 	if l.Verbose {
 		return
 	}
-	l.bar.Add(l.ProgressLeft)
+	err := l.bar.Add(l.ProgressLeft)
+	if err != nil {
+		// TODO: handle it
+		return
+	}
 	l.ProgressLeft = 0
-	l.bar.Finish()
+	err = l.bar.Finish()
+	if err != nil {
+		// TODO: handle it
+		return
+	}
 }
 
 func (l *ILogger) IgnoreIncrements(ignore bool) {

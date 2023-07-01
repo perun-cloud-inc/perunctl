@@ -6,7 +6,7 @@ The main goal of this CLI tool is to enable developers to debug their containeri
 
 **Perun service** - a containerized application.
 we support multiple types of services :
-- The docker service : its a service representing a docker image where the command and args can be overwritten if need be.
+- The docker service : it's a service representing a docker image where the command and args can be overwritten if need be.
 - The local service : a representation of a local folder where the application repository is found, a Dockerfile should already be created at the root of this location, defining the docker container of the application.
   *currently node and python applications are only supported this should be specified in the yaml as well.*
  
@@ -22,7 +22,7 @@ Each service in the environment YAML can define its dependencies, which will inf
 ## Pre-requisites
 
 * A running Docker setup on the local machine
-* perunctl and events binaries deployed under the same path
+* `perunctl` and events binaries deployed under the same path
 
 
 ## The perunctl CLI

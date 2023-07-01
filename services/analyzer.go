@@ -3,7 +3,7 @@ package services
 import (
 	"fmt"
 
-	"main.go/model"
+	"github.com/perun-cloud-inc/perunctl/model"
 )
 
 type AnalyzerService interface {

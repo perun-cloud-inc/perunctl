@@ -1,8 +1,8 @@
 package services
 
 import (
-	"main.go/model"
-	"main.go/utils"
+	"github.com/perun-cloud-inc/perunctl/model"
+	"github.com/perun-cloud-inc/perunctl/utils"
 )
 
 type ValidationService interface {

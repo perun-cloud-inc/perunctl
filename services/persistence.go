@@ -3,21 +3,20 @@ package services
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	"gopkg.in/yaml.v3"
 
-	"main.go/model"
-	"main.go/utils"
+	"github.com/perun-cloud-inc/perunctl/model"
+	"github.com/perun-cloud-inc/perunctl/utils"
 )
 
-// An interface representing a persistence abstraction whether for a workspace or an environment
+// PersistenceService An interface representing a persistence abstraction whether for a workspace or an environment
 type PersistenceService interface {
 	WorkspacePersistenceService
 }
 
-// An interface representing a persistence abstraction whether for a workspace
+// WorkspacePersistenceService An interface representing a persistence abstraction whether for a workspace
 type WorkspacePersistenceService interface {
 	PersistWorkspace(*model.Workspace) error
 	ClearWorkspace(*model.Workspace) error
@@ -77,7 +76,7 @@ func (ps LocalPersistenceService) PersistWorkspace(ws *model.Workspace) error {
 		return err
 	}
 
-	wsLocation := dirname + utils.WORKSPACES_HOME + ws.Name
+	wsLocation := fmt.Sprintf(dirname, utils.WorkspacesHome, ws.Name)
 	if err := os.MkdirAll(wsLocation, os.ModePerm); err != nil {
 
 		utils.Logger.Error("%v", err)
@@ -121,8 +120,8 @@ func (ps LocalPersistenceService) ClearWorkspace(ws *model.Workspace) error {
 		return err
 	}
 
-	utils.Logger.Info("Clearing workspace %s, at %s", ws.Name, dirname+utils.WORKSPACES_HOME+ws.Name)
-	if err = os.RemoveAll(dirname + utils.WORKSPACES_HOME + ws.Name); err != nil {
+	utils.Logger.Info("Clearing workspace %s, at %s", ws.Name, dirname+utils.WorkspacesHome+ws.Name)
+	if err = os.RemoveAll(fmt.Sprintf(dirname, utils.WorkspacesHome, ws.Name)); err != nil {
 		utils.Logger.Error("%v", err)
 		err = fmt.Errorf("failed to clear workspace %s work dirs : %v", ws.Name, err)
 		return err
@@ -140,7 +139,7 @@ func (ps LocalPersistenceService) GetWorkspace(name string) (*model.Workspace, e
 		return nil, err
 	}
 
-	workspaceLocation := dirname + utils.WORKSPACES_HOME + name + "/workspace.yml"
+	workspaceLocation := fmt.Sprintf("%s%s%s/workspace.yml", dirname, utils.WorkspacesHome, name)
 	exists, err := Exists(workspaceLocation)
 	if err != nil {
 		utils.Logger.Error("%v", err)
@@ -149,9 +148,7 @@ func (ps LocalPersistenceService) GetWorkspace(name string) (*model.Workspace, e
 
 	}
 	if !exists {
-
 		return nil, nil
-
 	}
 
 	yfile, err := os.ReadFile(workspaceLocation)
@@ -184,14 +181,14 @@ func (ps LocalPersistenceService) ListWorkspaces() ([]*model.Workspace, error) {
 		err = fmt.Errorf("failed to list workspaces, failed to fetch home directory : %v", err)
 		return nil, err
 	}
-	workspacesDirectory := dirname + utils.WORKSPACES_HOME
+	workspacesDirectory := fmt.Sprintf(dirname, utils.WorkspacesHome)
 
 	if err := os.MkdirAll(workspacesDirectory, os.ModePerm); err != nil {
 		utils.Logger.Error("%v", err)
 		err = fmt.Errorf("failed to init workspaces directory : %v", err)
 		return nil, err
 	}
-	files, err := ioutil.ReadDir(workspacesDirectory)
+	files, err := os.ReadDir(workspacesDirectory)
 	if err != nil {
 		utils.Logger.Error("%v", err)
 		err = fmt.Errorf("failed to list workspaces, failed to read workspaces directory %s : %v", workspacesDirectory, err)
@@ -200,7 +197,7 @@ func (ps LocalPersistenceService) ListWorkspaces() ([]*model.Workspace, error) {
 
 	for _, file := range files {
 		if file.IsDir() {
-			workspaceLocation := workspacesDirectory + file.Name() + "/workspace.yml"
+			workspaceLocation := fmt.Sprintf("%s%s/workspace.yml", workspacesDirectory, file.Name())
 			exists, err := Exists(workspaceLocation)
 			if err != nil {
 				utils.Logger.Warn("failed to fetch workspaces %s, no workspace yaml found : %v", workspacesDirectory+file.Name(), err)

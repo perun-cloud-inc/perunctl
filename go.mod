@@ -1,17 +1,14 @@
-module main.go
+module github.com/perun-cloud-inc/perunctl
 
 go 1.20
 
 require (
-	github.com/aws/aws-sdk-go v1.34.28
-	github.com/aws/aws-sdk-go-v2/config v1.4.1
-	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.3.1
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.11.0
 	github.com/docker/docker v20.10.17+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/go-ps v1.0.0
 	github.com/opencontainers/image-spec v1.0.1
+	github.com/schollz/progressbar/v3 v3.13.1
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/viper v1.7.1
@@ -26,7 +23,6 @@ require (
 	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
-	github.com/schollz/progressbar/v3 v3.13.1 // indirect
 )
 
 require (
@@ -34,16 +30,6 @@ require (
 	github.com/Microsoft/go-winio v0.4.17 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
-	github.com/aws/aws-sdk-go-v2 v1.7.0 // indirect
-	github.com/aws/aws-sdk-go-v2/credentials v1.3.0 // indirect
-	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.2.0 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/ini v1.1.0 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.2.0 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.2.0 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.5.0 // indirect
-	github.com/aws/aws-sdk-go-v2/service/sso v1.3.0 // indirect
-	github.com/aws/aws-sdk-go-v2/service/sts v1.5.0 // indirect
-	github.com/aws/smithy-go v1.5.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/docker/distribution v2.7.1+incompatible // indirect
 	github.com/docker/go-units v0.4.0 // indirect
@@ -61,7 +47,6 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/imdario/mergo v0.3.6 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
-	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/lib/pq v1.10.8
@@ -97,7 +82,7 @@ require (
 	gotest.tools/v3 v3.0.3 // indirect
 	k8s.io/klog/v2 v2.70.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20220803162953-67bda5d908f1 // indirect
-	k8s.io/utils v0.0.0-20220728103510-ee6ede2d64ed // indirect
+	k8s.io/utils v0.0.0-20220728103510-ee6ede2d64ed
 	sigs.k8s.io/json v0.0.0-20220713155537-f223a00ba0e2 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.3 // indirect
 	sigs.k8s.io/yaml v1.2.0 // indirect
