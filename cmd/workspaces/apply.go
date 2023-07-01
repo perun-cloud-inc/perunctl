@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+
 	"github.com/perun-cloud-inc/perunctl/cmd"
 	"github.com/perun-cloud-inc/perunctl/services"
 	"github.com/perun-cloud-inc/perunctl/utils"

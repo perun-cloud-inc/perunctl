@@ -2,10 +2,11 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/perun-cloud-inc/perunctl/cmd"
 	"github.com/perun-cloud-inc/perunctl/utils"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 // generateConfigCmd represents a command to generate perun debug config
